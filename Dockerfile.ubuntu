@@ -1,0 +1,33 @@
+FROM ubuntu:22.04 AS builder
+
+WORKDIR /home
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install git build-essential m4 libgmp3-dev cmake libbz2-dev zlib1g-devel
+
+RUN cd aura-bot/StormLib \
+    && mkdir build \
+    && cd build \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_DYNAMIC_MODULE=1 .. \
+    && make \
+    && make install  \
+    && cd ../.. \
+    && cd bncsutil/src/bncsutil \
+    && make \
+    && make install \
+    && cd ../../.. \
+    && make 
+    
+RUN cd aura-bot \ 
+    && mkdir -p /home/aura \
+    && chmod -R 777 /home/aura \
+    # && sed -i 's/INSTALL_DIR = \/usr/INSTALL_DIR = \/home/' Makefile \
+    && make install
+
+FROM ubuntu:22.04 
+WORKDIR /srv
+COPY --from=builder /usr/bin/aura++ /srv/aura/aura++
+COPY --from=builder /usr/lib/libbncsutil.so /usr/lib/libbncsutil.so
+COPY --from=builder /usr/local/lib/libstorm.so /usr/lib/libstorm.so
+COPY --from=builder /usr/local/lib/libstorm.so.9 /usr/lib/libstorm.so.9
+COPY --from=builder /usr/local/lib/libstorm.so.9.21.0 /usr/lib/libstorm.so.9.21.0
+
+CMD ["/srv/aura/aura++"]
