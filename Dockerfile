@@ -3,6 +3,8 @@ FROM archlinux:base-devel AS builder
 WORKDIR /home
 RUN pacman -Sy --noconfirm cmake git
 
+ADD . /home/aura-bot
+
 RUN cd aura-bot/StormLib \
     && mkdir build \
     && cd build \
@@ -17,9 +19,6 @@ RUN cd aura-bot/StormLib \
     && make 
     
 RUN cd aura-bot \ 
-    && mkdir -p /home/aura \
-    && chmod -R 777 /home/aura \
-    # && sed -i 's/INSTALL_DIR = \/usr/INSTALL_DIR = \/home/' Makefile \
     && sudo make install
 
 FROM archlinux:base 

@@ -3,6 +3,8 @@ FROM ubuntu:22.04 AS builder
 WORKDIR /home
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install git build-essential m4 libgmp3-dev cmake libbz2-dev zlib1g-devel
 
+ADD . /home/aura-bot
+
 RUN cd aura-bot/StormLib \
     && mkdir build \
     && cd build \
@@ -16,11 +18,7 @@ RUN cd aura-bot/StormLib \
     && cd ../../.. \
     && make 
     
-RUN cd aura-bot \ 
-    && mkdir -p /home/aura \
-    && chmod -R 777 /home/aura \
-    # && sed -i 's/INSTALL_DIR = \/usr/INSTALL_DIR = \/home/' Makefile \
-    && make install
+RUN cd aura-bot && make install
 
 FROM ubuntu:22.04 
 WORKDIR /srv
