@@ -1,7 +1,7 @@
 FROM ubuntu:22.04 AS builder
 
 WORKDIR /home
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install git build-essential m4 libgmp3-dev cmake libbz2-dev zlib1g-devel
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install git build-essential m4 libgmp3-dev cmake libbz2-dev zlib1g-dev
 
 ADD . /home/aura-bot
 
@@ -16,12 +16,12 @@ RUN cd aura-bot/StormLib \
     && make \
     && make install \
     && cd ../../.. \
-    && make 
-    
+    && make
+
 RUN cd aura-bot && make install
 
-FROM ubuntu:22.04 
-WORKDIR /srv
+FROM ubuntu:22.04
+WORKDIR /srv/aura
 COPY --from=builder /usr/bin/aura++ /srv/aura/aura++
 COPY --from=builder /usr/lib/libbncsutil.so /usr/lib/libbncsutil.so
 COPY --from=builder /usr/local/lib/libstorm.so /usr/lib/libstorm.so
